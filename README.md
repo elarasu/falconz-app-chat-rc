@@ -1,6 +1,8 @@
-# @falconz/app-chat-rc
+# falconz-app-chat-rc
 
-chat module, specifically connect to rocketchat backend
+chat client api modules. specifically meant to implement fetching from rocketchat backend
+
+## Todo
 
 ## Notes
 

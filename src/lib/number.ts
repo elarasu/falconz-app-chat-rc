@@ -1,3 +1,8 @@
+import { create } from 'apisauce';
+import R from 'ramda';
+// @ts-ignore  
+import RS from 'ramdasauce';
+
 /**
  * Multiplies a value by 2. (Also a full example of TypeDoc's functionality.)
  *
@@ -20,7 +25,31 @@
  * @anotherNote Some other value.
  */
 export const double = (value: number) => {
-  return value * 2;
+  return value * 4;
+};
+
+export const getStatus = () => {
+  // define the api
+  const api = create({
+    baseURL: 'https://api.github.com',
+    headers: { Accept: 'application/vnd.github.v3+json' },
+  });
+
+  // attach a monitor that fires with each request
+  api.addMonitor(
+    R.pipe(
+      RS.dotPath('headers.x-ratelimit-remaining'),
+      // R.concat('Calls remaining this hour: '),
+      console.log
+    )
+  );
+  const REPO = 'skellock/apisauce';
+  // show the latest commit message
+  api
+    .get(`/repos/${REPO}/commits`)
+    .then(RS.dotPath('data.0.commit.message'))
+    // .then(R.concat('Latest Commit: '))
+    .then(console.log);
 };
 
 /**
