@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.9](https://github.com///compare/v0.0.8...v0.0.9) (2021-07-19)
+
+
+### Features
+
+* service class updated to have get method ([61b11b7](https://github.com///commit/61b11b7e66b4d5eadc8980932337489ebd6963e1))
+
 ### [0.0.8](https://github.com///compare/v0.0.7...v0.0.8) (2021-07-19)
 
 ### [0.0.7](https://github.com///compare/v0.0.6...v0.0.7) (2021-07-08)
