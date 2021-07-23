@@ -13,7 +13,7 @@ translate.setParams({
   ie: 'utf-8',
   oe: 'utf-8',
 });
-translate.setCache(200);
+translate.setCache(200, true);
 // text\=welcome\&itc\=ta-t-i0-und\&num\=13\&ie\=utf-8\&oe\=utf-8
 // translate.get('/request', {
 //   text: 'welcome',

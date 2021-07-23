@@ -7,6 +7,7 @@ export class Service {
   _api: ApisauceInstance;
   _params: object = null;
   _cache: LRU = null;
+  _keyHashed: boolean = false;
 
   constructor(url: string, headers: HEADERS = null) {
     this._url = url;
@@ -23,12 +24,15 @@ export class Service {
     const originalGet = this._api.get;
     this._api.get = (url, params = {}) => {
       return new Promise((resolve) => {
-        const key = url + JSON.stringify(params);
+        let key = url + JSON.stringify(params);
+        if (this._keyHashed) {
+          key = this.hash(key).toString();
+        }
         // console.log('***** inside modified get ******');
         if (this._cache.has(key)) {
           const val = this._cache.get(key);
           const data = JSON.parse(val);
-          console.log(`[CACHE GET] ${key} ${val}`);
+          console.log(`[CACHE  GET] ${key} ${val}`);
           return resolve({
             ok: true,
             problem: null,
@@ -44,8 +48,10 @@ export class Service {
       // console.log('******** response received *******', response);
       // lets add the ressult to cache
       if (this._cache && response.ok) {
-        const key =
-          response.config.url + JSON.stringify(response.config.params);
+        let key = response.config.url + JSON.stringify(response.config.params);
+        if (this._keyHashed) {
+          key = this.hash(key).toString();
+        }
         const val = JSON.stringify(response.data);
         console.log(`[CACHE SAVE] ${key} ${val}`);
         this._cache.set(key, val);
@@ -53,7 +59,7 @@ export class Service {
     });
   }
 
-  setCache(limit: number) {
+  setCache(limit: number, keyAsHash: boolean = false) {
     this._cache = new LRU({
       max: limit,
       dispose: function (key, n) {
@@ -64,6 +70,21 @@ export class Service {
       },
       maxAgeit: 1000 * 60 * 60,
     });
+    this._keyHashed = keyAsHash;
+  }
+
+  hash(str: string) {
+    var hash = 5381,
+      i = str.length;
+
+    while (i) {
+      hash = (hash * 33) ^ str.charCodeAt(--i);
+    }
+
+    /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
+     * integers. Since we want the results to be always positive, convert the
+     * signed int to an unsigned by doing an unsigned bitshift. */
+    return hash >>> 0;
   }
 
   setHeaders(headers: HEADERS) {
