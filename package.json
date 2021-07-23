@@ -1,6 +1,6 @@
 {
   "name": "falconz-app-chat-rc",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "chat module, specifically connect to rocketchat backend",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
