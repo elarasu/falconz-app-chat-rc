@@ -1,19 +1,32 @@
-import { create, ApisauceInstance, HEADERS } from 'apisauce';
+import { ApisauceInstance, create, HEADERS } from 'apisauce';
 import LRU from 'lru-cache';
 
-// import RS from 'ramdasauce';
-export class Service {
+export function hash(str: string) {
+  let hsh = 5381;
+  let i = str.length;
+
+  while (i) {
+    hsh = (hsh * 33) ^ str.charCodeAt(--i);
+  }
+
+  /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
+   * integers. Since we want the results to be always positive, convert the
+   * signed int to an unsigned by doing an unsigned bitshift. */
+  return hsh >>> 0;
+}
+
+export default class Service {
   _url: string;
   _api: ApisauceInstance;
-  _params: object = null;
+  _params: Record<string, unknown> = null;
   _cache: LRU = null;
-  _keyHashed: boolean = false;
+  _keyHashed = false;
 
-  constructor(url: string, headers: HEADERS = null) {
-    this._url = url;
+  constructor(baseUrl: string, headers: HEADERS = null) {
+    this._url = baseUrl;
     // console.log('****** Service URL set to ******', this._url);
     this._api = create({
-      baseURL: url,
+      baseURL: baseUrl,
       headers,
     });
     // attach a monitor that fires with each request
@@ -24,10 +37,8 @@ export class Service {
     const originalGet = this._api.get;
     this._api.get = (url, params = {}) => {
       return new Promise((resolve) => {
-        let key = url + JSON.stringify(params);
-        if (this._keyHashed) {
-          key = this.hash(key).toString();
-        }
+        const path = url + JSON.stringify(params);
+        const key = this._keyHashed ? hash(path).toString() : path;
         // console.log('***** inside modified get ******');
         if (this._cache.has(key)) {
           const val = this._cache.get(key);
@@ -48,21 +59,20 @@ export class Service {
       // console.log('******** response received *******', response);
       // lets add the ressult to cache
       if (this._cache && response.ok) {
-        let key = response.config.url + JSON.stringify(response.config.params);
-        if (this._keyHashed) {
-          key = this.hash(key).toString();
-        }
+        const path =
+          response.config.url + JSON.stringify(response.config.params);
+        const key = this._keyHashed ? hash(path).toString() : path;
         const val = JSON.stringify(response.data);
-        console.log(`[CACHE SAVE] ${key} ${val}`);
+        console.log(`[CACHE SAVE]${key} ${val}`);
         this._cache.set(key, val);
       }
     });
   }
 
-  setCache(limit: number, keyAsHash: boolean = false) {
+  setCache(limit: number, keyAsHash = false) {
     this._cache = new LRU({
       max: limit,
-      dispose: function (key, n) {
+      dispose(key, n) {
         console.log('======= dispose ==== ');
         console.log(key);
         console.log(n);
@@ -73,25 +83,11 @@ export class Service {
     this._keyHashed = keyAsHash;
   }
 
-  hash(str: string) {
-    var hash = 5381,
-      i = str.length;
-
-    while (i) {
-      hash = (hash * 33) ^ str.charCodeAt(--i);
-    }
-
-    /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
-     * integers. Since we want the results to be always positive, convert the
-     * signed int to an unsigned by doing an unsigned bitshift. */
-    return hash >>> 0;
-  }
-
   setHeaders(headers: HEADERS) {
     this._api.setHeaders(headers);
   }
 
-  setParams(params: object) {
+  setParams(params: Record<string, unknown>) {
     this._params = params;
   }
 
@@ -99,7 +95,7 @@ export class Service {
     return this._api;
   }
 
-  get(path: string = '/', params: object = null) {
+  get(path = '/', params: Record<string, unknown> = null) {
     const p = {
       ...this._params,
       ...params,

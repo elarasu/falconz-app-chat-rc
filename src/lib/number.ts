@@ -3,7 +3,7 @@ import R from 'ramda';
 import RS from 'ramdasauce';
 import Realm from 'realm';
 
-import ServiceSchema from '../models/service.js';
+import ServiceSchema from '../models/service';
 
 /**
  * Multiplies a value by 2. (Also a full example of TypeDoc's functionality.)
@@ -45,13 +45,13 @@ export const getStatus = (url, user, password) => {
       // service = realm.objects('Service');
     }
     // lookup realm for the service url and last connected date
-    const svc = service[0];
+    const svc: any = service[0];
     console.log('====================================');
-    console.log(svc['lastRoomsSynced'], svc['url']);
+    console.log(svc.lastRoomsSynced, svc.url);
     console.log('====================================');
     // define the api
     const api = create({
-      baseURL: `https://${svc['url']}/api/v1`,
+      baseURL: `https://${svc.url}/api/v1`,
     });
 
     // attach a monitor that fires with each request
