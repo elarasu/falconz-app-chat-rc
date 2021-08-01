@@ -1,6 +1,4 @@
-// import { double, getStatus } from '../build/module/lib/number.js';
-import { Service } from '../build/module/lib/service.js';
-import LRU from 'lru-cache';
+import Service from '../build/module/lib/service.js';
 import RS from 'ramdasauce';
 
 // console.log(double(3));
@@ -47,33 +45,3 @@ translate
 // translate.get('/request', {
 //   text: 'world',
 // });
-
-var cache = new LRU({
-  max: 3,
-  lengthit: function (n, key) {
-    console.log('***** length ****', n, key);
-    return n * 2 + key.length;
-  },
-  dispose: function (key, n) {
-    console.log('======= dispose ==== ');
-    console.log(key);
-    console.log(n);
-    // n.close();
-  },
-  maxAgeit: 1000 * 60 * 60,
-});
-cache.set('key', 'value');
-console.log(cache.get('key'));
-cache.set('key1', 'value1');
-console.log(cache.get('key1'));
-console.log(cache.dump());
-cache.set('key2', 'value2');
-console.log(cache.get('key2'));
-cache.set('key3', 'value3');
-console.log(cache.get('key3'));
-console.log(cache.dump());
-cache.set('key4', 'value4');
-console.log(cache.get('key4'));
-cache.set('key5', 'value5');
-console.log(cache.get('key5'));
-console.log(cache.dump());
