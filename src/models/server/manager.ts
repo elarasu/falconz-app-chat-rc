@@ -22,6 +22,18 @@ export default class ServerManager {
     });
   }
 
+  updateCredentials(user: string, password: string, userId: string = null, authToken: string = null) {
+    const svc = this.service;
+    if (svc !== null) {
+      this._realm.write(() => {
+        svc.user = user;
+        svc.password = password;
+        svc.userId = userId;
+        svc.authToken = authToken;
+      });
+    }
+  }
+
   get service(): any {
     let svc = this._realm.objects(ServerSchemaName);
     if (svc.length < 1) {

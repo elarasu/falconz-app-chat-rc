@@ -26,28 +26,72 @@ export default class RC {
     const svc = this._serverManager.service;
     // define the api
     this._api = create({
-      baseURL: `${svc.url}/api/v1`,
+      baseURL: `${svc.url}/api/v1/`,
     });
+    this._setAuthHeaders();
     // attach a monitor that fires with each request
     this._api.addMonitor(
       R.pipe(
         RS.dotPath('headers.x-ratelimit-remaining'),
-        // R.concat('Calls remaining this hour: '),
+        R.concat('Calls remaining this hour: '),
         console.log
       )
     );
+    // lets try to attach authToken
+    // this._api.addMonitor(
+  }
+
+  _setAuthHeaders() {
+    const svc = this._serverManager.service;
+    if (svc.userId && svc.authToken) {
+      this._api.setHeaders({
+        'X-Auth-Token': svc.authToken,
+        'X-User-Id': svc.userId,
+      });
+    }
   }
 
   login(user: string, password: string) {
     const svc = this._serverManager.service;
     console.log('====================================');
-    console.log(user, password);
-    console.log(svc.lastRoomsSynced, svc.url);
+    console.log('login to service:', user);
+    console.log(svc.url);
     console.log('====================================');
+    this._api
+      .post(`login`, { user, password })
+      .then(RS.dotPath('data.data'))
+      .then((response) => {
+        this._serverManager.updateCredentials(user, password, response['userId'], response['authToken']);
+        this._setAuthHeaders();
+      });
   }
 
   getInfo() {
-    this._api.get(`/info`).then(RS.dotPath('data')).then(console.log);
+    this._api.get(`info`).then(RS.dotPath('data')).then(console.log);
+    // this._api.get(`/info`).then(console.log);
+  }
+
+  getMe() {
+    // this._api.get(`/me`).then(console.log);
+    this._api.get(`me`).then((response) => {
+      console.log(response.ok);
+      console.log(response.problem);
+      // console.log(response.status);
+      // console.log(response.originalError);
+      console.log(response.data);
+    });
+  }
+
+  getTeams() {
+    this._api.get(`teams.list`).then(RS.dotPath('data')).then(console.log);
+  }
+
+  getRooms() {
+    this._api.get(`rooms.get`).then(RS.dotPath('data')).then(console.log);
+  }
+
+  getDiscussions() {
+    this._api.get(`rooms.getDiscussions`).then(console.log);
   }
 
   getStatus() {
@@ -57,13 +101,6 @@ export default class RC {
     console.log('====================================');
     // define the api
 
-    // api.get(`/me`).then((response) => {
-    //   console.log(response.ok);
-    //   console.log(response.problem);
-    //   console.log(response.status);
-    //   console.log(response.originalError);
-    //   console.log(response.data);
-    // });
     // // if login token is present, set those in api credentials
     // if (!svc['userId'] || !svc['authToken']) {
     //   api
