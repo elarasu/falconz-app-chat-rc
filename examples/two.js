@@ -10,6 +10,8 @@ chatsvc.getTeams();
 
 chatsvc.getRooms();
 
+chatsvc.getUsers();
+
 // chatsvc.getDiscussions();
 
 // getStatus('http://localhost:3000', 'test', 'test123');

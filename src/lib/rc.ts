@@ -5,6 +5,9 @@ import Realm from 'realm';
 
 import ServerSchema from '../models/server/schema.js';
 import ServerManager from '../models/server/manager.js';
+import { IUser } from '../definition/IUser.js';
+import { ITeam } from '../definition/ITeam.js';
+import { IRoom } from '../definition/IRoom.js';
 
 export default class RC {
   _realm: Realm = null;
@@ -83,17 +86,38 @@ export default class RC {
   }
 
   getTeams() {
-    this._api.get(`teams.list`).then(RS.dotPath('data')).then(console.log);
+    this._api.get(`teams.list`).then(RS.dotPath('data')).then(response => {
+      const teamList = response['teams'];
+      for (let i = 0; i < teamList.length; i++) {
+        const t: ITeam = teamList[i];
+        console.log(t);
+      }
+    });
   }
 
   getRooms() {
-    this._api.get(`rooms.get`).then(RS.dotPath('data')).then(console.log);
+    this._api.get(`rooms.get`).then(RS.dotPath('data')).then(response => {
+      const roomList = response['update'];
+      for (let i = 0; i < roomList.length; i++) {
+        const r: IRoom = roomList[i];
+        console.log(r);
+      }
+    });
+  }
+
+  getUsers() {
+    this._api.get(`users.list`).then(RS.dotPath('data')).then(response => {
+      const userList = response['users'];
+      for (let i = 0; i < userList.length; i++) {
+        const u: IUser = userList[i];
+        console.log(u);
+      }
+    });
   }
 
   getDiscussions() {
     this._api.get(`rooms.getDiscussions`).then(console.log);
   }
-
   getStatus() {
     const svc = this._serverManager.service;
     console.log('====================================');
