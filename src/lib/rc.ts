@@ -8,6 +8,7 @@ import ServerManager from '../models/server/manager.js';
 import { IUser } from '../definition/IUser.js';
 import { ITeam } from '../definition/ITeam.js';
 import { IRoom } from '../definition/IRoom.js';
+import { IMessage } from '../definition/IMessage/index.js';
 
 export default class RC {
   _realm: Realm = null;
@@ -95,12 +96,27 @@ export default class RC {
     });
   }
 
+  getHistory(roomObj: IRoom) {
+    const roomType = roomObj.t === 'c' ? "channels" : roomObj.t === 'd' ? "im" : "groups";
+    this._api.get(`${roomType}.history`, { roomId: roomObj._id }).then(RS.dotPath('data')).then(response => {
+      console.log("*********************************************** ", roomObj.fname);
+      // console.log(response);
+      const msgList = response['messages'];
+      for (let i = 0; i < msgList.length; i++) {
+        const m: IMessage = msgList[i];
+        console.log(m);
+      }
+    });
+  }
+
   getRooms() {
     this._api.get(`rooms.get`).then(RS.dotPath('data')).then(response => {
       const roomList = response['update'];
       for (let i = 0; i < roomList.length; i++) {
         const r: IRoom = roomList[i];
         console.log(r);
+        // fetch the message history
+        this.getHistory(r);
       }
     });
   }
@@ -118,45 +134,5 @@ export default class RC {
   getDiscussions() {
     this._api.get(`rooms.getDiscussions`).then(console.log);
   }
-  getStatus() {
-    const svc = this._serverManager.service;
-    console.log('====================================');
-    console.log(svc.lastRoomsSynced, svc.url);
-    console.log('====================================');
-    // define the api
 
-    // // if login token is present, set those in api credentials
-    // if (!svc['userId'] || !svc['authToken']) {
-    //   api
-    //     .post(`/login`, { user: svc['user'], password: svc['password'] })
-    //     .then(RS.dotPath('data.data'))
-    //     .then((response) => {
-    //       api.setHeaders({
-    //         'X-Auth-Token': response['authToken'],
-    //         'X-User-Id': response['userId'],
-    //       });
-    //     });
-    // } else {
-    //   api.setHeaders({
-    //     'X-Auth-Token': svc['authToken'],
-    //     'X-User-Id': svc['userId'],
-    //   });
-    // }
-  }
-
-  // api
-  //   .post(`/login`, { user: 'xxxx', password: 'xxxx' })
-  //   .then(RS.dotPath('data.data'))
-  //   .then((response) => {
-  //     api.setHeaders({
-  //       'X-Auth-Token': response['authToken'],
-  //       'X-User-Id': response['userId'],
-  //     });
-  //     // console.log(response);
-  //     api
-  //       .get(`/rooms.get`)
-  //       .then(RS.dotPath('data'))
-  //       // .then(R.concat('Latest Commit: '))
-  //       .then(console.log);
-  //   });
 }
