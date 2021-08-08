@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.16](https://github.com///compare/v0.0.15...v0.0.16) (2021-08-08)
+
+
+### Features
+
+* bringing in json rpc sample Odoo ([bd64ea6](https://github.com///commit/bd64ea6af82a1bab06cb0b3a53ccbc8c199af2e1))
+
 ### [0.0.15](https://github.com///compare/v0.0.14...v0.0.15) (2021-08-02)
 
 ### [0.0.14](https://github.com///compare/v0.0.13...v0.0.14) (2021-08-02)
