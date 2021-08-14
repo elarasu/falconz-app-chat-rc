@@ -1,5 +1,10 @@
 import { create, ApisauceInstance } from 'apisauce';
+import R from 'ramda';
 import RS from 'ramdasauce';
+import Realm from 'realm';
+
+import CacheSchema from '../models/cache/schema.js';
+import CacheManager from '../models/cache/manager.js';
 
 export default class Odoo {
   _url: string = null;
@@ -8,11 +13,16 @@ export default class Odoo {
   _uid: number = 2;
   _password: string = null;
   _api: ApisauceInstance = null;
+  _realm: Realm = null;
+  _cacheManager: CacheManager = null;
 
   constructor(url: string, db: string) {
     this._url = url;
     this._db = db;
     this._createDefaultApiObject();
+    // open realm here
+    this._realm = new Realm({ schema: [CacheSchema] });
+    this._cacheManager = new CacheManager(this._realm);
   }
 
   login(user: string, password: string) {
@@ -26,6 +36,27 @@ export default class Odoo {
       });
   }
 
+  // employee related methods
+  sync() {
+    this.execute('hr.employee', 'search_read', []).then((resp) => {
+      const res = resp['data']['result'];
+      this._cacheManager.updateObjects(res, 'hr.employee');
+      console.log(this._cacheManager.allWithPrefix("hr.employee"));
+      // remove keys image_*
+      // const isImage = (_val, key) =>
+      //   !key.startsWith('image_') &&
+      //   !key.startsWith('message_') &&
+      //   !key.startsWith('activity_');
+      // const filteredKeys = Object.keys(R.pickBy(isImage, res[0]));
+      // //   console.log(filteredKeys);
+      // for (let i = 0; i < res.length; i++) {
+      //   const o = res[i];
+      //   console.log(R.pick(filteredKeys, o));
+      // }
+    });
+  }
+
+  // raw rpc methods
   execute(...args: any[]) {
     return this.call('object', 'execute', this._db, this._uid, this._password, ...args);
   }
@@ -58,6 +89,12 @@ export default class Odoo {
     this._api = create({
       baseURL: `${this._url}/jsonrpc`,
     });
+    this._api.addMonitor(
+      R.pipe(
+        RS.dotPath('headers.x-ratelimit-remaining'),
+        R.concat('Calls remaining this hour: '),
+        console.log
+      )
+    );
   }
-
 }
