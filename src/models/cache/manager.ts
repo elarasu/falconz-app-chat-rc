@@ -15,7 +15,7 @@ export default class CacheManager {
     this._realm.write(() => {
       objs.forEach(obj => {
         const k = `${keyPrefix}::${obj.id}`;
-        console.log(k);
+        // console.log(k);
         this._realm.create(CacheSchemaName, {
           key: k, value: JSON.stringify(obj)
         }, Realm.UpdateMode.Modified);
@@ -24,24 +24,18 @@ export default class CacheManager {
   }
 
   get allObjects() {
-    const svc = this._realm.objects(CacheSchemaName);
-    console.log(svc.length);
-    // if (svc.length < 1) {
-    //   this._createDefaultObject();
-    //   svc = this._realm.objects(CacheSchemaName);
-    // }
-    // return svc.length < 1 ? null : svc[0];
-    return svc;
+    const objs = this._realm.objects(CacheSchemaName);
+    return objs;
   }
 
   allWithPrefix(keyPrefix: string) {
-    const svc = this._realm.objects(CacheSchemaName).filtered(`key BEGINSWITH "${keyPrefix}::"`);
-    console.log(svc.length);
-    // if (svc.length < 1) {
-    //   this._createDefaultObject();
-    //   svc = this._realm.objects(CacheSchemaName);
-    // }
-    // return svc.length < 1 ? null : svc[0];
-    return svc;
+    const objs = this._realm.objects(CacheSchemaName).filtered(`key BEGINSWITH "${keyPrefix}::"`);
+    return objs;
+  }
+
+  getObject(keyPrefix: string, id: string) {
+    const k = `${keyPrefix}::${id}`;
+    const obj = this._realm.objectForPrimaryKey(CacheSchemaName, k);
+    return obj;
   }
 }

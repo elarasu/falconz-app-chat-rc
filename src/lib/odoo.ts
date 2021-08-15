@@ -16,12 +16,12 @@ export default class Odoo {
   _realm: Realm = null;
   _cacheManager: CacheManager = null;
 
-  constructor(url: string, db: string) {
+  constructor(url: string, db: string, realm: Realm = null) {
     this._url = url;
     this._db = db;
     this._createDefaultApiObject();
     // open realm here
-    this._realm = new Realm({ schema: [CacheSchema] });
+    this._realm = realm !== null ? realm : new Realm({ schema: [CacheSchema] });
     this._cacheManager = new CacheManager(this._realm);
   }
 
@@ -37,11 +37,11 @@ export default class Odoo {
   }
 
   // employee related methods
-  sync() {
-    this.execute('hr.employee', 'search_read', []).then((resp) => {
+  fetchAll(tableName: string) {
+    this.execute(tableName, 'search_read', []).then((resp) => {
       const res = resp['data']['result'];
-      this._cacheManager.updateObjects(res, 'hr.employee');
-      console.log(this._cacheManager.allWithPrefix("hr.employee"));
+      this._cacheManager.updateObjects(res, tableName);
+      // console.log(this._cacheManager.allWithPrefix(tableName));
       // remove keys image_*
       // const isImage = (_val, key) =>
       //   !key.startsWith('image_') &&
@@ -54,6 +54,30 @@ export default class Odoo {
       //   console.log(R.pick(filteredKeys, o));
       // }
     });
+    // this.execute('hr.attendance', 'search_read', []).then((resp) => {
+    //   const res = resp['data']['result'];
+    //   this._cacheManager.updateObjects(res, 'hr.attendance');
+    //   console.log(this._cacheManager.allWithPrefix("hr.attendance"));
+    //   // remove keys image_*
+    //   // const isImage = (_val, key) =>
+    //   //   !key.startsWith('image_') &&
+    //   //   !key.startsWith('message_') &&
+    //   //   !key.startsWith('activity_');
+    //   // const filteredKeys = Object.keys(R.pickBy(isImage, res[0]));
+    //   // //   console.log(filteredKeys);
+    //   // for (let i = 0; i < res.length; i++) {
+    //   //   const o = res[i];
+    //   //   console.log(R.pick(filteredKeys, o));
+    //   // }
+    // });
+  }
+
+  allRecords(tableName: string) {
+    return this._cacheManager.allWithPrefix(tableName);
+  }
+
+  getRecord(tableName: string, id: string) {
+    return this._cacheManager.getObject(tableName, id);
   }
 
   // raw rpc methods
