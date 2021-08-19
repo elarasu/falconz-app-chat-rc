@@ -42,13 +42,11 @@
     "node": ">=10"
   },
   "dependencies": {
-    "@xstate/fsm": "^1.6.1",
-    "apisauce": "^2.1.1",
-    "axios-rate-limit": "^1.3.0",
-    "lru-cache": "^6.0.0",
-    "ramda": "^0.27.1",
-    "ramdasauce": "^2.1.3",
-    "realm": "^10.6.0"
+    "apisauce": "2.1.1",
+    "lru-cache": "6.0.0",
+    "ramda": "0.27.1",
+    "ramdasauce": "2.1.3",
+    "realm": "10.6.1"
   },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
