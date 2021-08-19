@@ -14,7 +14,6 @@ git push --follow-tags origin main && npm publish
 
 ## Todo
 
-- move dependencies to peer and in example introduce package.json
 - start writing unit test before it is too large to start
 - introduce json-schema validation - ajv
 - remove lru and introduce datastructure library https://github.com/Yomguithereal/mnemonist
