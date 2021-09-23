@@ -4,6 +4,9 @@
   "type": "module",
   "private": true,
   "dependencies": {
-    "realm": "10.6.1"
+    "pouchdb-adapter-node-websql": "7.0.0",
+    "realm": "10.6.1",
+    "rxdb": "10.0.3",
+    "rxjs": "7.3.0"
   }
 }
